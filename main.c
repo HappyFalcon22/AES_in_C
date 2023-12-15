@@ -3,23 +3,23 @@
 /// @brief This is an example to run AES128-CBC Encryption and Decryption
 /// @param plaintext : Your plaintext, prefered to be meaningful
 /// @param plaintext_len : The length of the plaintext
-void example_aes128_cbc(unsigned char* plaintext, int plaintext_len) {
+void example_aes128_cbc(uint8_t* plaintext, int plaintext_len) {
 
     // Initialize the seed for random oracle
     rand_init();
 
     // Generate a random key and iv
-    unsigned char *key = random_block(16);
-    unsigned char *iv = random_block(16);
+    uint8_t *key = random_block(16);
+    uint8_t *iv = random_block(16);
 
     // Find the length after pad (ciphertext_len)
     int ciphertext_len = length_after_pad(plaintext_len);
 
     // Use AES128-CBC to encrypt your plaintext pad
-    unsigned char *ct = aes_cbc_encrypt(plaintext, plaintext_len, key, iv);
+    uint8_t *ct = aes_cbc_encrypt(plaintext, plaintext_len, key, iv);
     
     // Use AES128-CBC to decrypt your ciphertext
-    unsigned char *recovered = aes_cbc_decrypt(ct, ciphertext_len, key, iv);
+    uint8_t *recovered = aes_cbc_decrypt(ct, ciphertext_len, key, iv);
     // Print your plaintext
     for (int i = 0; i < plaintext_len; i++)
     {
@@ -34,12 +34,12 @@ void example_encrypt_to_python_file() {
 
     rand_init();
 
-    unsigned char *key = random_block(16);
-    unsigned char *iv = random_block(16);
+    uint8_t *key = random_block(16);
+    uint8_t *iv = random_block(16);
 
-    unsigned char pt[32] = {'A', 'E', 'S', '-', 'C', 'B', 'C', ' ', 'u', 's', 'e', 'd', ' ', 'f', 'o', 'r', ' ', 'i', 'm', 'a', 'g', 'e', ' ', 's', 'e', 'c', 'u', 'r', 'i', 't', 'y', '.'};
+    uint8_t pt[32] = {'A', 'E', 'S', '-', 'C', 'B', 'C', ' ', 'u', 's', 'e', 'd', ' ', 'f', 'o', 'r', ' ', 'i', 'm', 'a', 'g', 'e', ' ', 's', 'e', 'c', 'u', 'r', 'i', 't', 'y', '.'};
 
-    unsigned char *ct = aes_cbc_encrypt(pt, 32, key, iv);
+    uint8_t *ct = aes_cbc_encrypt(pt, 32, key, iv);
 
     int length_after_encrypt = length_after_pad(32);
 

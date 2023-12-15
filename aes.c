@@ -3,7 +3,7 @@
 const int EXPANDED_KEY_SIZE = 176;
 
 // Implementation: S-Box
-unsigned char SBOX[256] = {
+uint8_t SBOX[256] = {
     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,  // 0
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,  // 1
@@ -24,7 +24,7 @@ unsigned char SBOX[256] = {
 };
 
 // From S-Box, we derive the inverse S-Box
-unsigned char INV_SBOX[256] = {
+uint8_t INV_SBOX[256] = {
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
     0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
     0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
@@ -45,7 +45,7 @@ unsigned char INV_SBOX[256] = {
 
 
 // Implementation: RCON
-unsigned char RCON[255] = {
+uint8_t RCON[255] = {
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8,
     0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3,
     0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f,
@@ -69,11 +69,11 @@ unsigned char RCON[255] = {
 };
 
 // Implement Galois Field Multiplication
-unsigned char gf_mul(unsigned char a, unsigned char b)
+uint8_t gf_mul(uint8_t a, uint8_t b)
 {
-    unsigned char p = 0;
-    unsigned char counter;
-    unsigned char hi_bit_set;
+    uint8_t p = 0;
+    uint8_t counter;
+    uint8_t hi_bit_set;
     for (counter = 0; counter < 8; counter++)
     {
         if ((b & 1) == 1)
@@ -88,18 +88,18 @@ unsigned char gf_mul(unsigned char a, unsigned char b)
 }
 
 // Functions to get the value of Sbox index and invSbox index
-unsigned char getSBox(unsigned char num) {
+uint8_t getSBox(uint8_t num) {
     return SBOX[num];
 }
-unsigned char getSBoxInv(unsigned char num) {
+uint8_t getSBoxInv(uint8_t num) {
     return INV_SBOX[num];
 }
 
 /* Rijndael's key schedule rotate operation
 rotate the word eight bits to the left */
-void rotate(unsigned char *word) {
+void rotate(uint8_t *word) {
     // word = n1_n2_n3_n4
-    unsigned char c;
+    uint8_t c;
     c = word[0];
     for (int i = 0; i < 3; i++)
         word[i] = word[i + 1];
@@ -107,12 +107,12 @@ void rotate(unsigned char *word) {
     // word = n2_n3_n4_n1
 }
 
-unsigned char getRCON(unsigned char num) {
+uint8_t getRCON(uint8_t num) {
     return RCON[num];
 }
 
 // Rijndael's Key Schedule Core
-void core(unsigned char *word, int iteration)
+void core(uint8_t *word, int iteration)
 {
     // rotate left 8 bits
     rotate(word);
@@ -124,13 +124,13 @@ void core(unsigned char *word, int iteration)
 }
 
 // Key Expansion
-void expandKey(unsigned char *expandedKey, unsigned char *key, enum keySize size, size_t expandedKeySize) {
+void expandKey(uint8_t *expandedKey, uint8_t *key, enum keySize size, size_t expandedKeySize) {
     
     // current expanded keySize, in bytes
     int currentSize = 0;
     int rconIteration = 1;
     int i;
-    unsigned char t[4] = {0}; // tempo 4-byte variable
+    uint8_t t[4] = {0}; // tempo 4-byte variable
 
     // set the 16,24,32 bytes of the expanded key to the input key
     for (i = 0; i < size; i++)
@@ -172,7 +172,7 @@ void expandKey(unsigned char *expandedKey, unsigned char *key, enum keySize size
 }
 
 // Create Round Key
-void create_round_key(unsigned char *expanded_key, unsigned char *round_key)
+void create_round_key(uint8_t *expanded_key, uint8_t *round_key)
 {
     // iterate over the columns
     for (int i = 0; i < 4; i++)
@@ -184,28 +184,28 @@ void create_round_key(unsigned char *expanded_key, unsigned char *round_key)
 }
 
 // sub_bytes
-void sub_bytes(unsigned char *state) {
+void sub_bytes(uint8_t *state) {
     for (int i = 0; i < 16; i++)
         state[i] = getSBox(state[i]);
 }
 
 // inv_sub_bytes
-void inv_sub_bytes(unsigned char *state) {
+void inv_sub_bytes(uint8_t *state) {
     for (int i = 0; i < 16; i++)
         state[i] = getSBoxInv(state[i]);
 }
 
 // Shift rows
-void shift_rows(unsigned char *state)
+void shift_rows(uint8_t *state)
 {
     for (int i = 0; i < 4; i++)
         shift_row(state + i * 4, i);
 }
 
-void shift_row(unsigned char *state, unsigned char r)
+void shift_row(uint8_t *state, uint8_t r)
 {
     int i, j;
-    unsigned char tmp;
+    uint8_t tmp;
     // each iteration shifts the row to the left by 1
     for (i = 0; i < r; i++)
     {
@@ -217,16 +217,16 @@ void shift_row(unsigned char *state, unsigned char r)
 }
 
 // Inverse Shift Rows
-void inv_shift_rows(unsigned char *state)
+void inv_shift_rows(uint8_t *state)
 {
     for (int i = 0; i < 4; i++)
         inv_shift_row(state + i * 4, i);
 }
 
-void inv_shift_row(unsigned char *state, unsigned char r)
+void inv_shift_row(uint8_t *state, uint8_t r)
 {
     int i, j;
-    unsigned char tmp;
+    uint8_t tmp;
     // each iteration shifts the row to the right by 1
     for (i = 0; i < r; i++)
     {
@@ -238,10 +238,10 @@ void inv_shift_row(unsigned char *state, unsigned char r)
 }
 
 // Mix Column
-void mix_columns(unsigned char *state)
+void mix_columns(uint8_t *state)
 {
     int i, j;
-    unsigned char column[4];
+    uint8_t column[4];
     // iterate over the 4 columns
     for (i = 0; i < 4; i++)
     {
@@ -257,9 +257,9 @@ void mix_columns(unsigned char *state)
     }
 }
 
-void mix_column(unsigned char *column)
+void mix_column(uint8_t *column)
 {
-    unsigned char cpy[4];
+    uint8_t cpy[4];
     for (int i = 0; i < 4; i++)
         cpy[i] = column[i];
 
@@ -285,10 +285,10 @@ void mix_column(unsigned char *column)
 }
 
 // Inverse Mix Columns
-void inv_mix_columns(unsigned char *state)
+void inv_mix_columns(uint8_t *state)
 {
     int i, j;
-    unsigned char column[4];
+    uint8_t column[4];
 
     // iterate over the 4 columns
     for (i = 0; i < 4; i++)
@@ -304,9 +304,9 @@ void inv_mix_columns(unsigned char *state)
     }
 }
 
-void inv_mix_column(unsigned char *column)
+void inv_mix_column(uint8_t *column)
 {
-    unsigned char cpy[4];
+    uint8_t cpy[4];
     for (int i = 0; i < 4; i++)
         cpy[i] = column[i];
     column[0] = gf_mul(cpy[0], 14) ^
@@ -331,14 +331,14 @@ void inv_mix_column(unsigned char *column)
 }
 
 // Add Round Key
-void add_round_key(unsigned char *state, unsigned char *round_key)
+void add_round_key(uint8_t *state, uint8_t *round_key)
 {
     for (int i = 0; i < 16; i++)
         state[i] = state[i] ^ round_key[i];
 }
 
 // AES round
-void aes_round(unsigned char *state, unsigned char *round_key) {
+void aes_round(uint8_t *state, uint8_t *round_key) {
     sub_bytes(state);
     shift_rows(state);
     mix_columns(state);
@@ -346,7 +346,7 @@ void aes_round(unsigned char *state, unsigned char *round_key) {
 }
 
 // AES inverse round
-void aes_inv_round(unsigned char *state, unsigned char *round_key) {
+void aes_inv_round(uint8_t *state, uint8_t *round_key) {
     inv_shift_rows(state);
     inv_sub_bytes(state);
     add_round_key(state, round_key);
@@ -354,9 +354,9 @@ void aes_inv_round(unsigned char *state, unsigned char *round_key) {
 }
 
 // Main AES Body
-void aes_main(unsigned char *state, unsigned char *expanded_key, int no_round) {
+void aes_main(uint8_t *state, uint8_t *expanded_key, int no_round) {
 
-    unsigned char round_key[16];
+    uint8_t round_key[16];
     create_round_key(expanded_key, round_key);
     add_round_key(state, round_key);
 
@@ -374,9 +374,9 @@ void aes_main(unsigned char *state, unsigned char *expanded_key, int no_round) {
 }
 
 // Main AES Body for inverse
-void aes_inv_main(unsigned char *state, unsigned char *expanded_key, int no_round) {
+void aes_inv_main(uint8_t *state, uint8_t *expanded_key, int no_round) {
 
-    unsigned char round_key[16];
+    uint8_t round_key[16];
     create_round_key(expanded_key + 16 * no_round, round_key);
     add_round_key(state, round_key);
 
@@ -395,16 +395,16 @@ void aes_inv_main(unsigned char *state, unsigned char *expanded_key, int no_roun
 
 
 // Main function
-char aes_encrypt(unsigned char *pt, unsigned char *ct, unsigned char *key, enum keySize size)
+char aes_encrypt(uint8_t *pt, uint8_t *ct, uint8_t *key, enum keySize size)
 {
     // the expanded key size
     int expandedKeySize;
     // # rounds
     int no_round;
     // the expanded key
-    unsigned char *expandedKey;
+    uint8_t *expandedKey;
     // the 128 bit block to encode
-    unsigned char block[16];
+    uint8_t block[16];
 
     int i, j;
     // set the number of rounds
@@ -425,7 +425,7 @@ char aes_encrypt(unsigned char *pt, unsigned char *ct, unsigned char *key, enum 
     }
 
     expandedKeySize = (16 * (no_round + 1));
-    expandedKey = (unsigned char *)malloc(expandedKeySize * sizeof(unsigned char));
+    expandedKey = (uint8_t *)malloc(expandedKeySize * sizeof(uint8_t));
 
     if (expandedKey == NULL)
         return MEMORY_ALLOCATION_FAILED;
@@ -465,16 +465,16 @@ char aes_encrypt(unsigned char *pt, unsigned char *ct, unsigned char *key, enum 
 }
 
 // Main function for AES decryption
-char aes_decrypt(unsigned char *ct, unsigned char *pt, unsigned char *key, enum keySize size) {
+char aes_decrypt(uint8_t *ct, uint8_t *pt, uint8_t *key, enum keySize size) {
     
     // the expanded key size
     int expandedKeySize;
     // # rounds
     int no_round;
     // the expanded key
-    unsigned char *expandedKey;
+    uint8_t *expandedKey;
     // the 128 bit block to encode
-    unsigned char block[16];
+    uint8_t block[16];
 
     int i, j;
     // set the number of rounds
@@ -495,7 +495,7 @@ char aes_decrypt(unsigned char *ct, unsigned char *pt, unsigned char *key, enum 
     }
 
     expandedKeySize = (16 * (no_round + 1));
-    expandedKey = (unsigned char *)malloc(expandedKeySize * sizeof(unsigned char));
+    expandedKey = (uint8_t *)malloc(expandedKeySize * sizeof(uint8_t));
 
     if (expandedKey == NULL)
         return MEMORY_ALLOCATION_FAILED;
@@ -535,8 +535,8 @@ char aes_decrypt(unsigned char *ct, unsigned char *pt, unsigned char *key, enum 
 }
 
 // Misc function
-unsigned char * random_block(int block_len) {
-    unsigned char *block = (unsigned char *)malloc(block_len * sizeof(unsigned char));
+uint8_t * random_block(int block_len) {
+    uint8_t *block = (uint8_t *)malloc(block_len * sizeof(uint8_t));
     for (int i = 0; i < block_len; i++) 
         block[i] = rand() % 256;
     return block;
@@ -546,7 +546,7 @@ void rand_init() {
     srand(time(NULL));
 }
 
-void print_block(unsigned char *block, int block_len) {
+void print_block(uint8_t *block, int block_len) {
     for (int i = 0; i < block_len; i++)
     {
         // Print characters in HEX format, 16 chars per line
@@ -565,12 +565,12 @@ int length_after_pad(int data_len) {
     return data_len + calc_pad_ammount_aes128(data_len);
 }
 
-unsigned char * pad(unsigned char *data, int data_len) {
+uint8_t * pad(uint8_t *data, int data_len) {
 
     int pad_amount = calc_pad_ammount_aes128(data_len);
     int new_size = pad_amount + data_len;
-    unsigned char *pad_block;
-    pad_block = (unsigned char *) malloc(new_size * sizeof(unsigned char));
+    uint8_t *pad_block;
+    pad_block = (uint8_t *) malloc(new_size * sizeof(uint8_t));
     
     // Reassign
     for (int i = 0; i < data_len; i++) {
@@ -589,22 +589,22 @@ unsigned char * pad(unsigned char *data, int data_len) {
 
 // AES-CBC using AES128 with an additional Initialization Vector (IV)
 // The plaintext should have the length that is a multiple of 16
-unsigned char * aes_cbc_encrypt(unsigned char *pt, int pt_len, unsigned char *key, unsigned char *iv) {
+uint8_t * aes_cbc_encrypt(uint8_t *pt, int pt_len, uint8_t *key, uint8_t *iv) {
 
     int pt_pad_len = length_after_pad(pt_len);
-    unsigned char *pt_pad = pad(pt, pt_len);
+    uint8_t *pt_pad = pad(pt, pt_len);
 
     int num_block = pt_pad_len / 16;
 
     // State
-    unsigned char *state;
-    state = (unsigned char *) malloc(16 * sizeof(unsigned char));
+    uint8_t *state;
+    state = (uint8_t *) malloc(16 * sizeof(uint8_t));
     // Intermediate buffer
-    unsigned char *buf;
-    buf = (unsigned char *) malloc(16 * sizeof(unsigned char));
+    uint8_t *buf;
+    buf = (uint8_t *) malloc(16 * sizeof(uint8_t));
     // Ciphertext
-    unsigned char *ct;
-    ct = (unsigned char *) malloc(pt_pad_len * sizeof(unsigned char));
+    uint8_t *ct;
+    ct = (uint8_t *) malloc(pt_pad_len * sizeof(uint8_t));
 
 
     // Initialize first block of ciphertext
@@ -641,19 +641,19 @@ unsigned char * aes_cbc_encrypt(unsigned char *pt, int pt_len, unsigned char *ke
 
 // AES-CBC using AES128 with an additional Initialization Vector (IV)
 // The ciphertext should have the length that is a multiple of 16
-unsigned char * aes_cbc_decrypt(unsigned char *ct, int ct_len, unsigned char *key, unsigned char *iv) {
+uint8_t * aes_cbc_decrypt(uint8_t *ct, int ct_len, uint8_t *key, uint8_t *iv) {
 
     int num_block = ct_len / 16;
 
     // State
-    unsigned char *state;
-    state = (unsigned char *) malloc(16 * sizeof(unsigned char));
+    uint8_t *state;
+    state = (uint8_t *) malloc(16 * sizeof(uint8_t));
     // Intermediate buffer
-    unsigned char *buf;
-    buf = (unsigned char *) malloc(16 * sizeof(unsigned char));
+    uint8_t *buf;
+    buf = (uint8_t *) malloc(16 * sizeof(uint8_t));
     // Ciphertext
-    unsigned char *pt;
-    pt = (unsigned char *) malloc(ct_len * sizeof(unsigned char));
+    uint8_t *pt;
+    pt = (uint8_t *) malloc(ct_len * sizeof(uint8_t));
 
     // Initialize first block of ciphertext
     for (int i = 0; i < 16; i++) 
@@ -688,7 +688,7 @@ unsigned char * aes_cbc_decrypt(unsigned char *ct, int ct_len, unsigned char *ke
 }
 
 // Unpad a data stream
-unsigned char *unpad(unsigned char *data, int data_len) {
+uint8_t *unpad(uint8_t *data, int data_len) {
 
     // Check the last char of the data, which
     // reveals the pad bytes
@@ -697,7 +697,7 @@ unsigned char *unpad(unsigned char *data, int data_len) {
 
     int original_size = data_len - pad_amount;
     // Create new data, which trims off some of the last padding bytes
-    unsigned char *data_unpad = (unsigned char *) malloc(original_size * sizeof(unsigned char));
+    uint8_t *data_unpad = (uint8_t *) malloc(original_size * sizeof(uint8_t));
 
     // Assign
     for (int i = 0; i < original_size; i++)
@@ -706,7 +706,7 @@ unsigned char *unpad(unsigned char *data, int data_len) {
     return data_unpad;
 }
 
-int length_after_unpad(unsigned char *data_pad, int data_len) {
+int length_after_unpad(uint8_t *data_pad, int data_len) {
     return data_len - data_pad[data_len - 1];
 }
 
@@ -719,14 +719,14 @@ void test_pad_and_unpad(int round) {
         // Random length
         int l = rand() % 150 + 16;
 
-        unsigned char *data = random_block(l);
+        uint8_t *data = random_block(l);
 
         // Need to know the length after padding
         int l_pad = length_after_pad(l);
-        unsigned char *data_pad = pad(data, l);
+        uint8_t *data_pad = pad(data, l);
 
         // If unpad succeed, the length should be l
-        unsigned char *data_unpad = unpad(data_pad, l_pad);
+        uint8_t *data_unpad = unpad(data_pad, l_pad);
 
         if (!check_two_arrays(data, data_unpad, l)) 
             printf("Test failed at testcase %d\n", i);    
@@ -741,13 +741,13 @@ void test_aes(int round) {
 
     for (int i = 0; i < round; i++) {
         // Generate random key
-        unsigned char *key = random_block(16);
+        uint8_t *key = random_block(16);
         // the plaintext
-        unsigned char *plaintext = random_block(16);
+        uint8_t *plaintext = random_block(16);
         // Ciphertext
-        unsigned char ciphertext[16];
+        uint8_t ciphertext[16];
         // Recovered plaintext
-        unsigned char recovered[16];
+        uint8_t recovered[16];
         // Encrypt the plaintext using AES128
         aes_encrypt(plaintext, ciphertext, key, 16);
         // Decrypt the ciphertext using AES128
@@ -767,17 +767,17 @@ void test_aes_cbc(int round, int plaintext_len) {
 
     for (int i = 0; i < round; i++) {
         // Generate random key
-        unsigned char *key = random_block(16);
+        uint8_t *key = random_block(16);
         // Generate random iv
-        unsigned char *iv = random_block(16);
+        uint8_t *iv = random_block(16);
         // The plaintext, must pad before using
-        unsigned char *plaintext = random_block(plaintext_len);
+        uint8_t *plaintext = random_block(plaintext_len);
 
         int ct_len = length_after_pad(plaintext_len);
         // Encrypt the plaintext using AES128-CBC
-        unsigned char* ciphertext = aes_cbc_encrypt(plaintext, plaintext_len, key, iv);
+        uint8_t* ciphertext = aes_cbc_encrypt(plaintext, plaintext_len, key, iv);
         // Decrypt the ciphertext using AES128-CBC
-        unsigned char* recovered = aes_cbc_decrypt(ciphertext, ct_len, key, iv);
+        uint8_t* recovered = aes_cbc_decrypt(ciphertext, ct_len, key, iv);
 
         if (!check_two_arrays(plaintext, recovered, plaintext_len)) {
             printf("Test failed at testcase %d\n", i + 1);
@@ -788,7 +788,7 @@ void test_aes_cbc(int round, int plaintext_len) {
     return;
 }
 
-bool check_two_arrays(unsigned char *a1, unsigned char *a2, int l) {
+bool check_two_arrays(uint8_t *a1, uint8_t *a2, int l) {
     for (int i = 0; i < l; i++)
         if (a1[i] != a2[i])
             return false;

@@ -1,0 +1,3 @@
+all:
+    gcc aes.c main.c -o main 
+    ./main
